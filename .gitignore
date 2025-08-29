@@ -1,0 +1,27 @@
+# Ignore Python virtual environments
+email_extractor_env/
+venv/
+ENV/
+.env/
+*.env
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+.Python
+dist/
+build/
+*.egg-info/
+
+# VS Code settings
+.vscode/
+
+# macOS system files
+.DS_Store
+
+# Other common ignores
+*.log
+*.sqlite3
+*.db
