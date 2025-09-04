@@ -1,4 +1,4 @@
-# Required Python packages for the enhanced PST Email Extractor
+# Required Python packages for the Combined Email Forensics & Audit Analysis Suite
 
 # Core dependencies (usually included with Python)
 # tkinter - GUI framework (included with Python)
@@ -16,6 +16,9 @@ xlrd==2.0.1                 # Legacy Excel support
 # OCR capabilities for image files
 pytesseract==0.3.10         # OCR for images
 Pillow==10.1.0              # Image processing
+
+# Timezone support for audit log analysis
+pytz==2023.3                # Timezone handling for audit logs
 
 # Note: Additional system requirements:
 # 1. libpst (install via: brew install libpst) - for readpst command
