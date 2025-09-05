@@ -24,7 +24,7 @@ class BreachAnalysisApp(tk.Tk):
     """
     def __init__(self):
         super().__init__()
-        self.title("Breach Analysis Toolkit - Audit Logs & Email Extraction")
+        self.title("Mayo's Outlook Forensics - Audit Logs & Email Extraction")
         self.geometry("1400x900")
         self.minsize(1000, 700)
         
@@ -188,39 +188,41 @@ class BreachAnalysisApp(tk.Tk):
     def show_help(self):
         """Show help dialog for the application."""
         help_text = (
-            "=== BREACH ANALYSIS TOOLKIT - HELP ===\n\n"
-            "⚡️ HTML EXPORTS ARE THE MAIN WAY TO VIEW, SORT, AND SHARE RESULTS!\n"
-            "• After filtering or extracting data, always use the 'Export to HTML' buttons to generate interactive reports.\n"
-            "• HTML reports provide sortable tables, detailed timelines, keyword match breakdowns, and clickable details.\n"
-            "• Use these HTML files for refining, sharing, and presenting your investigation findings.\n\n"
-            "This application combines two tools for investigating email security breaches.\n\n"
-            "📊 AUDIT LOG ANALYSIS TAB:\n"
-            "• Load Microsoft Purview audit log CSV files\n"
-            "• Filter by IP addresses, dates, and other criteria\n"
-            "• View detailed audit events in an interactive table\n"
-            "• Export filtered results to HTML reports (recommended for sorting and reviewing)\n"
-            "• Extract email addresses and send to Email Extraction tab\n\n"
-            "📧 EMAIL EXTRACTION & SCANNING TAB:\n"
-            "• Extract emails from PST files using readpst\n"
-            "• Scan extracted emails for specific keywords\n"
-            "• Import compromised email addresses from Audit tab\n"
-            "• Generate detailed analysis reports\n"
-            "• Export results in HTML format for best viewing and sharing\n\n"
-            "WORKFLOW:\n"
-            "1. Start with Audit Log Analysis to identify suspicious activities\n"
-            "2. Use \"Send Identified Emails to Extraction Tab\" button\n"
-            "3. Switch to Email Extraction tab to analyze PST files\n"
-            "4. Use \"Import from Audit Tab\" to load compromised emails\n"
-            "5. Generate comprehensive HTML reports for your investigation\n\n"
-            "TIPS:\n"
-            "• Set a shared investigation output directory for all files\n"
-            "• Use timezone settings to analyze logs in local time\n"
-            "• Cross-reference IP addresses between both tools\n"
-            "• Always export results in HTML format for professional, interactive reports\n"
+            "=== Mayo's Outlook Forensics - Quick Start Guide ===\n\n"
+            "🎯 PURPOSE: Go from \"someone accessed emails\" to \"here are the exact emails they viewed\"\n\n"
+            " HTML EXPORTS ARE THE MAIN WAY TO VIEW, REFINE, SORT, AND SHARE RESULTS!\n \n\n"
+            "⚡️ WORKFLOW (Follow these 3 steps):\n\n"
+            "1️⃣ ANALYZE AUDIT LOGS:\n"
+            "• Load Microsoft Purview audit CSV in first tab\n"
+            "• Filter by suspicious IPs or date ranges\n"
+            "• Export to HTML report (sortable, shareable)\n"
+            "• Click \"Send MailItemsAccessed IDs to Extraction Tab\"\n\n"
+            "2️⃣ EXTRACT & SCAN EMAILS (both happen together):\n"
+            "• Switch to Email Extraction tab\n"
+            "• Load PST file and select output folder\n"
+            "• Load keywords CSV file (or use default sample_keywords.csv)\n"
+            "• Click \"Import from Audit Tab\" to get email IDs\n"
+            "• Run \"Extract & Scan Emails\" - this does BOTH extraction AND keyword scanning\n"
+            "• Tool automatically scans emails + attachments (PDF, Word, Excel, images with OCR)\n\n"
+            "3️⃣ REVIEW RESULTS:\n"
+            "• HTML reports are your main output (interactive, sortable)\n"
+            "• Individual .eml files for detailed review\n"
+            "• Share HTML reports with management/legal teams\n\n"
+            "💡 KEY FEATURES:\n"
+            "• Timeline view of suspicious email access\n"
+            "• Automatic keyword scanning with OCR for images\n"
+            "• Export individual emails for evidence\n"
+            "• HTML reports for documentation\n"
+            "• Customize keywords: Edit sample_keywords.csv or upload your own\n\n"
+            "⚠️ COMMON ISSUES:\n"
+            "• \"readpst not found\" → Run setup script or install libpst manually\n"
+            "• Large PST files → Ensure enough disk space, copy locally\n"
+            "• Too many keyword matches → Use more specific keywords\n\n"
+            "🔒 SECURITY: This processes sensitive breach data - use secure computers only!\n"
         )
         
         help_window = tk.Toplevel(self)
-        help_window.title("Breach Analysis Toolkit - Help")
+        help_window.title("Mayo's Outlook Forensics - Help")
         help_window.geometry("600x500")
         help_window.resizable(True, True)
         help_window.configure(bg=self.colors['background'])
