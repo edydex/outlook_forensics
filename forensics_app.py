@@ -363,7 +363,8 @@ class AuditLogViewer:
         ttk.Label(html_options_frame, text="Comments for HTML Report:").grid(row=1, column=0, sticky="nw", padx=(0, 5), pady=(5,0))
         self.comments_text = tk.Text(html_options_frame, width=60, height=4, font=("Inter", 9), wrap=tk.WORD,
                                     bg=self.colors['white'], fg=self.colors['text'], relief='flat', borderwidth=0,
-                                    highlightthickness=1, highlightcolor=self.colors['border'], highlightbackground=self.colors['border'])
+                                    highlightthickness=1, highlightcolor=self.colors['border'], highlightbackground=self.colors['border'],
+                                    insertbackground=self.colors['text'])
         self.comments_text.grid(row=1, column=1, sticky="nsew", padx=5, pady=(5,0))
         comments_scroll = ttk.Scrollbar(html_options_frame, command=self.comments_text.yview)
         comments_scroll.grid(row=1, column=2, sticky='ns', pady=(5,0))
@@ -3219,7 +3220,8 @@ class PSTExtractorApp:
                                                        bg=self.colors['white'], fg=self.colors['text'],
                                                        relief='flat', borderwidth=0,
                                                        highlightthickness=1, highlightcolor=self.colors['border'], 
-                                                       highlightbackground=self.colors['border'])
+                                                       highlightbackground=self.colors['border'],
+                                                       insertbackground=self.colors['text'])
         self.email_ids_text.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=10, pady=5)
 
         # --- Debugging Option: Disable Cleanup ---
@@ -3236,7 +3238,8 @@ class PSTExtractorApp:
                                                  bg=self.colors['white'], fg=self.colors['text'],
                                                  relief='flat', borderwidth=0,
                                                  highlightthickness=1, highlightcolor=self.colors['border'], 
-                                                 highlightbackground=self.colors['border'])
+                                                 highlightbackground=self.colors['border'],
+                                                 insertbackground=self.colors['text'])
         self.log_text.grid(row=7, column=0, columnspan=2, sticky="nsew", padx=10, pady=5)
         
         # Progress tracking
