@@ -37,7 +37,7 @@ fi
 
 # Create virtual environment
 echo "Creating Python virtual environment..."
-python3 -m venv pst_extractor_env
+python3 -m venv forensics_app_env
 
 # Activate virtual environment
 echo "Activating virtual environment..."

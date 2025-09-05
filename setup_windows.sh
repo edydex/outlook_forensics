@@ -29,11 +29,11 @@ if %errorlevel% neq 0 (
 
 REM Create virtual environment
 echo Creating Python virtual environment...
-python -m venv pst_extractor_env
+python -m venv forensics_app_env
 
 REM Activate virtual environment
 echo Activating virtual environment...
-call pst_extractor_env\Scripts\activate.bat
+call forensics_app_env\Scripts\activate.bat
 
 REM Upgrade pip
 echo Upgrading pip...
@@ -59,9 +59,9 @@ echo.
 echo To run the application (if libpst is available):
 echo 1. Navigate to the project directory
 echo 2. Activate the virtual environment:
-echo    pst_extractor_env\Scripts\activate.bat
+echo    forensics_app_env\Scripts\activate.bat
 echo 3. Run the application:
-echo    python email_extractor.py
+echo    python forensics_app.py
 echo.
 echo To deactivate the virtual environment when done:
 echo    deactivate

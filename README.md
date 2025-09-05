@@ -1,140 +1,173 @@
-# PST Email Extractor with Keyword Scanner
+# Breach Analysis Toolkit
 
-A comprehensive tool for extracting specific emails from PST files and scanning them for sensitive keywords.
+## What This Tool Does For You
 
-## Features
+**Bottom line:** You go from "we think someone accessed emails" to "here are the exact 47 emails they viewed, and 12 of them contained sensitive customer data."
 
-- Extract emails from PST files using Message IDs
-- Keyword scanning across email bodies and attachments
-- Support for multiple file types (PDF, Word, Excel, images with OCR)
-- Interactive GUI with results browser
-- HTML report generation for sharing results
-- Cross-platform support (macOS, Linux, Windows*)
+**If you're investigating a potential email breach**, this tool helps you:
 
-## Platform Requirements
+1. **Find the smoking gun** - Load Microsoft Purview audit logs and quickly spot suspicious email access patterns
+2. **Get the actual compromised emails** - Extract specific emails from PST files based on the audit trail
+3. **Scan for sensitive data** - Automatically search through emails and attachments for keywords like "password", "SSN", etc.
+4. **Create interactable reports** - Generate HTML reports you can actually share with management or law enforcement
 
-### macOS (Recommended)
-- macOS 10.14 or later
-- Homebrew (will be installed automatically)
-- Works natively on both Intel and Apple Silicon Macs
+## What You'll Actually Get
 
-### Linux
-- Most modern Linux distributions (Ubuntu, CentOS, Fedora, Arch)
-- Package manager (apt, yum, dnf, or pacman)
-- X11 or Wayland for GUI
+When you're done with an investigation, you'll have:
+- **Sortable HTML reports** showing exactly when suspicious access happened
+- **Individual email files** (.eml format) for each compromised message  
+- **A summary** of what sensitive keywords were found and where
+- **Interactive documentation** suitable for incident reports and maybe legal proceedings
 
-### Windows*
-- Windows 10 or later
-- **Note: Limited support due to libpst availability**
-- Consider using WSL or Linux VM for full functionality
+The HTML reports are really the main output - they're interactive, sortable, and you can actually send them to people who need to understand what happened.
 
-## Quick Start
+## Two Tools in One
 
-### macOS Setup
+This combines two separate investigation workflows:
+
+**Tab 1: Audit Log Analysis**
+- Load those massive CSV files from Microsoft Purview
+- Filter out the noise to focus on actual suspicious activity
+- Export clean, readable reports instead of spreadsheet hell
+
+**Tab 2: Email Extraction** 
+- Pull specific emails from PST files using the IDs you found in the audit logs
+- Scan through email content and attachments for sensitive data
+- Generate keyword match reports
+
+The tabs talk to each other - you can send email IDs directly from the audit analysis to the extraction tool.
+
+## Installation
+
+**Works best on Mac, okay on Linux. Windows is... complicated.**
+
+### Mac Setup (Easiest)
 ```bash
-chmod +x setup.sh
+# Download/clone this repo, then:
+cd AuditApp
+chmod +x setup_mac.sh
 ./setup.sh
+
+# When it's done:
+source forensics_app_env/bin/activate
+python forensics_app.py
 ```
 
 ### Linux Setup
 ```bash
+cd AuditApp
 chmod +x setup_linux.sh
 ./setup_linux.sh
+
+source forensics_app_env/bin/activate
+python forensics_app.py
 ```
 
-### Windows Setup
-```batch
-setup_windows.bat
-```
+### If the setup scripts break
+Sometimes they do. Here's the manual way:
 
-## Running the Application
-
-After setup, always run within the virtual environment:
-
-### macOS/Linux
 ```bash
-# Activate virtual environment
-source pst_extractor_env/bin/activate
+# Install the system stuff (Mac)
+brew install libpst tesseract
 
-# Run the application
-python3 email_extractor.py
+# Install the system stuff (Linux)
+sudo apt-get install pst-utils tesseract-ocr
 
-# When done, deactivate
-deactivate
+# Python environment
+python3 -m venv forensics_app_env
+source forensics_app_env/bin/activate
+pip install -r requirements.txt
 ```
 
-### Windows
-```batch
-REM Activate virtual environment
-pst_extractor_env\Scripts\activate.bat
+## How to Actually Use This
 
-REM Run the application
-python email_extractor.py
+### Step 1: Start with the audit logs
+1. Get your Microsoft Purview audit log CSV file
+     * Purview -> Audit -> Seatch -> Activities - friendly names -> *select everything under "Exchange mailbox activities"* 
+2. Load it in the first tab
+3. *(Optional)* Set your timezone so timestamps make sense
+4. Filter by suspicious IP addresses or date ranges
+5. Export to HTML to see what you're dealing with 
+6. Refine the filters to filter out as much "friendly" activity as possible
 
-REM When done, deactivate
-deactivate
-```
+### Step 2: Get the compromised email IDs
+- Click "Send MailItemsAccessed IDs to Extraction Tab" 
+    - This finds all the email Message-IDs that were accessed suspiciously
+    - They automatically get loaded into the second tab
+- *(Optional)* "HardDelete", "Send", and other message ID's can also be extracted from the HTML from "Digested Information" tab
 
-## Usage
+### Step 3: Extract and scan the actual emails
+1. Switch to the Email Extraction tab
+2. Browse for affected PST file (usually huge)
+3. Pick an output folder
+4. Load a keywords file (one keyword per line - "password", "ssn", etc.)
+    * feel free to add your own, or remove any keywords
+5. Click "Import from Audit Tab" to load those email IDs
+6. Hit "Extract & Scan Emails" and wait
 
-1. **Select PST File**: Choose your Outlook PST file
-2. **Select Output Directory**: Where extracted files will be saved
-3. **Select Keywords File**: CSV/TXT file containing sensitive keywords
-4. **Enter Email IDs**: Paste compromised Message-IDs (one per line)
-5. **Click "Extract & Scan Emails"**: Process and analyze
+### Step 4: Check your results
+The HTML reports are what you actually want to look at. They're sortable and you can send them to people who need to understand what happened.
 
-## Output Files
+## What Files You'll Get
 
-- Individual email files (.eml)
-- Attachment folders
-- CSV summary report
-- JSON detailed report
-- Interactive HTML report
+**From audit log analysis:**
+- HTML report with sortable timeline of suspicious access
+- CSV files split by IP address (if you want them)
+- Filtered data exports
 
-## Supported File Types for Keyword Scanning
+**From email extraction:**
+- Individual .eml files for each compromised email
+- Folders with extracted attachments 
+- CSV summary showing which emails had sensitive keywords
+- HTML report with keyword match details. Each email and attachment gets opened when double-clicked on.
 
-- **Email bodies**: Plain text content
-- **Attachments**: PDF, Word (.doc/.docx), Excel (.xls/.xlsx), Images (with OCR)
-- **Text files**: .txt, .csv, .log
+## File Types It Can Scan
 
-## Troubleshooting
+**Emails:** Regular email body text (plain and HTML)
+**Attachments:** PDF, Word docs, Excel sheets, images (needs OCR), text files
 
-### macOS Issues
-- If Homebrew installation fails, install manually from https://brew.sh
-- For Apple Silicon Macs, ensure Homebrew is in PATH
+## Keywords File Format
 
-### Linux Issues
-- If package installation fails, try updating package manager
-- Some distributions may need additional repositories
+Edit the existing CSV ("sample_keywords.csv"), or make your own based on the existing format.
 
-### Windows Issues
-- libpst is not easily available on Windows
-- Consider using WSL: `wsl --install` then follow Linux instructions
-- Alternative: Use VirtualBox with Ubuntu
+## Common Problems
 
-## Dependencies
+**"readpst command not found"**
+- The setup script probably failed to install libpst
+- On Mac: `brew install libpst`
+- On Linux: `sudo apt-get install pst-utils`
 
-### System Dependencies
-- libpst (readpst command)
-- Python 3.8+
-- Tesseract OCR (optional, for image scanning)
+**App crashes when loading big PST files**
+- PST files can be huge (10GB+). Make sure you have enough disk space
+- Close other programs to free up memory
+- If it's really huge, consider splitting the PST first
 
-### Python Packages
-- PyPDF2 (PDF processing)
-- python-docx (Word document processing)
-- pandas (Excel processing)
-- Pillow (Image processing)
-- pytesseract (OCR)
-- openpyxl (Excel processing)
+**Keyword scanning finds too much junk**
+- Be more specific with keywords
+- "password" will match "password123" and "passwordreset" 
+- Use exact phrases if needed
 
-## Security Note
+**HTML reports won't open**
+- Make sure the file fully exported (check file size)
+- Try a different browser
+- Check that your antivirus isn't blocking it
 
-This tool processes potentially sensitive data. Ensure:
-- Run on trusted systems only
-- Secure disposal of temporary files
-- Proper handling of extracted content
-- Review output before sharing
+## Important Security Notes
 
-## License
+This tool processes potentially sensitive breach data:
+- Only run it on secure, trusted computers
+- Don't leave extracted emails sitting around afterward
+- Be careful who you share the HTML reports with
+- Follow your organization's data handling policies
+- Consider encrypting the output folder
 
-This project is provided as-is for educational and professional use.
+## Performance Tips
+
+- **Large PST files:** Extract to a local drive, not network storage
+- **Lots of keywords:** Start with a few specific ones first
+- **Memory issues:** Close other apps, especially browsers with lots of tabs
+- **Network drives:** Copy PST files locally before processing
+
+---
+
+**The HTML reports are really the main output here.** They're what you'll actually look at and share with others. The individual email files are there if you need to dig deeper into specific messages.

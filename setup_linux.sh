@@ -46,11 +46,11 @@ esac
 
 # Create virtual environment
 echo "Creating Python virtual environment..."
-python3 -m venv pst_extractor_env
+python3 -m venv forensics_app_env
 
 # Activate virtual environment
 echo "Activating virtual environment..."
-source pst_extractor_env/bin/activate
+source forensics_app_env/bin/activate
 
 # Upgrade pip
 echo "Upgrading pip..."
@@ -65,12 +65,12 @@ echo "============================================"
 echo "Setup completed successfully!"
 echo "============================================"
 echo ""
-echo "To run the PST Email Extractor:"
+echo "To run the Forensics Application:"
 echo "1. Navigate to the project directory"
 echo "2. Activate the virtual environment:"
-echo "   source pst_extractor_env/bin/activate"
+echo "   source forensics_app_env/bin/activate"
 echo "3. Run the application:"
-echo "   python3 email_extractor.py"
+echo "   python3 forensics_app.py"
 echo ""
 echo "To deactivate the virtual environment when done:"
 echo "   deactivate"
