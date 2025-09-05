@@ -28,6 +28,17 @@ class BreachAnalysisApp(tk.Tk):
         self.geometry("1400x900")
         self.minsize(1000, 700)
         
+        # Define consistent color scheme
+        self.colors = {
+            'background': '#F5F5F5',      # Very light gray background
+            'text': '#333333',            # Dark gray text
+            'border': '#CCCCCC',          # Medium-light gray borders
+            'primary': '#607D8B',         # Blue-gray primary accent
+            'secondary': '#5CB85C',       # Professional green secondary
+            'selected': '#607D8B',        # Primary color for selections
+            'white': '#FFFFFF'            # Pure white for input fields
+        }
+        
         # Shared data between tabs
         self.shared_data = {
             'compromised_emails': [],
@@ -36,7 +47,101 @@ class BreachAnalysisApp(tk.Tk):
             'investigation_notes': tk.StringVar()
         }
         
+        self.setup_styles()
         self.create_main_interface()
+    
+    def setup_styles(self):
+        """Configure consistent styling throughout the application."""
+        # Configure root window
+        self.configure(bg=self.colors['background'])
+        
+        # Create and configure ttk styles
+        self.style = ttk.Style()
+        self.style.theme_use("clam")
+        
+        # Configure main application styles
+        self.style.configure('TFrame', background=self.colors['background'])
+        self.style.configure('TLabel', background=self.colors['background'], foreground=self.colors['text'])
+        self.style.configure('TLabelframe', background=self.colors['background'], foreground=self.colors['text'])
+        self.style.configure('TLabelframe.Label', background=self.colors['background'], foreground=self.colors['text'])
+        
+        # Configure button styles
+        self.style.configure('TButton',
+            background=self.colors['primary'],
+            foreground='white',
+            borderwidth=1,
+            relief='solid',
+            focuscolor='none')
+        self.style.map('TButton',
+            background=[('active', self.colors['selected']),
+                       ('pressed', self.colors['selected'])])
+        
+        # Configure secondary button style
+        self.style.configure('Secondary.TButton',
+            background=self.colors['secondary'],
+            foreground='white',
+            borderwidth=1,
+            relief='solid',
+            focuscolor='none')
+        self.style.map('Secondary.TButton',
+            background=[('active', self.colors['secondary']),
+                       ('pressed', self.colors['secondary'])])
+        
+        # Configure entry and combobox styles
+        self.style.configure('TEntry',
+            background=self.colors['white'],
+            foreground=self.colors['text'],
+            borderwidth=1,
+            relief='solid',
+            insertcolor=self.colors['text'])
+        
+        self.style.configure('TCombobox',
+            background=self.colors['white'],
+            foreground=self.colors['text'],
+            borderwidth=1,
+            relief='solid')
+        
+        # Configure notebook styles
+        self.style.configure('TNotebook', background=self.colors['background'])
+        self.style.configure('TNotebook.Tab',
+            background=self.colors['primary'],  # Inactive tabs darker
+            foreground='white',
+            padding=[8, 4])  # Smaller padding for inactive tabs
+        self.style.map('TNotebook.Tab',
+            background=[('selected', self.colors['background']),  # Selected tabs lighter
+                       ('active', self.colors['border'])],
+            foreground=[('selected', self.colors['text']),  # Selected tabs dark text
+                       ('active', self.colors['text'])],
+            padding=[('selected', [12, 6]),  # Selected tabs larger padding
+                    ('active', [10, 5])])
+        
+        # Configure treeview styles
+        self.style.configure("Treeview.Heading",
+            font=("Inter", 10, "bold"),
+            background=self.colors['background'],
+            foreground=self.colors['text'],
+            relief='solid',
+            borderwidth=1)
+        
+        self.style.configure("Treeview",
+            font=("Inter", 9),
+            rowheight=25,
+            background=self.colors['white'],
+            foreground=self.colors['text'])
+        
+        self.style.map("Treeview",
+            background=[('selected', self.colors['selected'])],
+            foreground=[('selected', 'white')])
+        
+        # Special style for sync entries
+        self.style.configure("Sync.Treeview", background="#FFEEEE")
+        
+        # Configure scrollbar styles
+        self.style.configure('TScrollbar',
+            background=self.colors['background'],
+            troughcolor=self.colors['border'],
+            borderwidth=0,
+            arrowcolor=self.colors['text'])
     
     def create_main_interface(self):
         """Create the main tabbed interface."""
@@ -53,8 +158,8 @@ class BreachAnalysisApp(tk.Tk):
         self.notebook.add(self.email_tab, text="📧 Email Extraction & Scanning")
         
         # Initialize tab contents
-        self.audit_viewer = AuditLogViewer(self.audit_tab, self.shared_data)
-        self.email_extractor = PSTExtractorApp(self.email_tab, self.shared_data)
+        self.audit_viewer = AuditLogViewer(self.audit_tab, self.shared_data, self.colors, self.style)
+        self.email_extractor = PSTExtractorApp(self.email_tab, self.shared_data, self.colors, self.style)
         
         # Create shared controls at the bottom
         self.create_shared_controls()
@@ -74,7 +179,7 @@ class BreachAnalysisApp(tk.Tk):
         actions_frame.pack(side=tk.RIGHT, padx=(20, 0))
         
         # Status indicator
-        self.status_label = ttk.Label(actions_frame, text="Ready", foreground="green")
+        self.status_label = ttk.Label(actions_frame, text="Ready", foreground=self.colors['secondary'])
         self.status_label.pack(side=tk.RIGHT, padx=10)
         
         # Help button
@@ -118,8 +223,10 @@ class BreachAnalysisApp(tk.Tk):
         help_window.title("Breach Analysis Toolkit - Help")
         help_window.geometry("600x500")
         help_window.resizable(True, True)
+        help_window.configure(bg=self.colors['background'])
         
-        text_widget = scrolledtext.ScrolledText(help_window, wrap=tk.WORD, padx=10, pady=10)
+        text_widget = scrolledtext.ScrolledText(help_window, wrap=tk.WORD, padx=10, pady=10,
+                                               bg=self.colors['white'], fg=self.colors['text'])
         text_widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         text_widget.insert(tk.END, help_text)
         text_widget.config(state='disabled')
@@ -132,8 +239,14 @@ class BreachAnalysisApp(tk.Tk):
         if directory:
             self.shared_data['output_directory'].set(directory)
     
-    def update_status(self, message, color="black"):
+    def update_status(self, message, color=None):
         """Update the status label."""
+        if color is None:
+            color = self.colors['text']
+        elif color == "green":
+            color = self.colors['secondary']
+        elif color == "red":
+            color = "#D32F2F"  # Red for errors
         self.status_label.config(text=message, foreground=color)
         self.update_idletasks()
 
@@ -141,9 +254,11 @@ class AuditLogViewer:
     """
     Microsoft Purview Audit Log viewer component for the tabbed interface.
     """
-    def __init__(self, parent_frame, shared_data):
+    def __init__(self, parent_frame, shared_data, colors, style):
         self.parent = parent_frame
         self.shared_data = shared_data
+        self.colors = colors
+        self.style = style
         
         self.df = None # The DataFrame currently displayed in the Treeview
         self.original_df = None # Stores the initial loaded and processed DataFrame
@@ -202,7 +317,7 @@ class AuditLogViewer:
         self.exclude_ip_checkbox = ttk.Checkbutton(control_frame, text="Exclude IP", variable=self.exclude_ip_var)
         self.exclude_ip_checkbox.pack(side=tk.LEFT, padx=5)
 
-        self.apply_ip_filter_button = ttk.Button(control_frame, text="Apply Filters", command=self.apply_filters)
+        self.apply_ip_filter_button = ttk.Button(control_frame, text="Apply Filters", command=self.apply_filters, style="Secondary.TButton")
         self.apply_ip_filter_button.pack(side=tk.LEFT, padx=5)
         
         # Date Filter
@@ -217,7 +332,7 @@ class AuditLogViewer:
         self.end_date_entry = ttk.Entry(date_filter_frame, width=25, font=("Inter", 10))
         self.end_date_entry.pack(side=tk.LEFT, padx=5)
         
-        self.apply_date_filter_button = ttk.Button(date_filter_frame, text="Apply Date Filter", command=self.apply_filters)
+        self.apply_date_filter_button = ttk.Button(date_filter_frame, text="Apply Date Filter", command=self.apply_filters, style="Secondary.TButton")
         self.apply_date_filter_button.pack(side=tk.LEFT, padx=5)
 
         self.clear_filter_button = ttk.Button(date_filter_frame, text="Clear Filters", command=self.clear_filter)
@@ -246,7 +361,9 @@ class AuditLogViewer:
         self.html_title_entry.grid(row=0, column=1, sticky="ew", padx=5)
 
         ttk.Label(html_options_frame, text="Comments for HTML Report:").grid(row=1, column=0, sticky="nw", padx=(0, 5), pady=(5,0))
-        self.comments_text = tk.Text(html_options_frame, width=60, height=4, font=("Inter", 9), wrap=tk.WORD)
+        self.comments_text = tk.Text(html_options_frame, width=60, height=4, font=("Inter", 9), wrap=tk.WORD,
+                                    bg=self.colors['white'], fg=self.colors['text'], relief='flat', borderwidth=0,
+                                    highlightthickness=1, highlightcolor=self.colors['border'], highlightbackground=self.colors['border'])
         self.comments_text.grid(row=1, column=1, sticky="nsew", padx=5, pady=(5,0))
         comments_scroll = ttk.Scrollbar(html_options_frame, command=self.comments_text.yview)
         comments_scroll.grid(row=1, column=2, sticky='ns', pady=(5,0))
@@ -277,16 +394,6 @@ class AuditLogViewer:
         self.tree.bind("<Motion>", self.on_tree_motion)
         self.tree.bind("<Leave>", self.hide_tooltip)
         self.tree.bind("<Button-1>", self.on_tree_click)
-
-        # Configure Treeview style
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure("Treeview.Heading", font=("Inter", 10, "bold"))
-        style.configure("Treeview", font=("Inter", 9), rowheight=25)
-        style.map("Treeview", background=[('selected', '#347083')])
-        
-        # Define a new style for 'Sync' entries
-        style.configure("Sync.Treeview", background="#FFEEEE") # Faint red background
         
         # Add button to send emails to extraction tab
         send_emails_frame = ttk.Frame(self.parent, padding="5")
@@ -295,8 +402,7 @@ class AuditLogViewer:
         self.send_emails_button = ttk.Button(
             send_emails_frame, 
             text="📧 Send MailItemsAccessed IDs to Extraction Tab", 
-            command=self.send_emails_to_extraction_tab,
-            style="Accent.TButton"
+            command=self.send_emails_to_extraction_tab
         )
         self.send_emails_button.pack(side=tk.RIGHT, padx=5)
 
@@ -768,6 +874,7 @@ class AuditLogViewer:
         filter_popup.title("Manage Applied Filters")
         filter_popup.transient(self) # Make it appear on top of the main window
         filter_popup.grab_set() # Make it modal
+        filter_popup.configure(bg=self.colors['background'])
 
         # Center the popup on the screen
         self.update_idletasks()
@@ -1058,8 +1165,8 @@ class AuditLogViewer:
         self.tooltip.wm_overrideredirect(True)
         self.tooltip.wm_geometry(f"+{x+10}+{y+10}")
 
-        label = ttk.Label(self.tooltip, text=text, background="#ffffe0", relief=tk.SOLID, borderwidth=1,
-                          font=("Inter", 9), padding=5)
+        label = ttk.Label(self.tooltip, text=text, background=self.colors['white'], relief=tk.SOLID, borderwidth=1,
+                          font=("Inter", 9), padding=5, foreground=self.colors['text'])
         label.pack(ipadx=1, ipady=1)
 
     def hide_tooltip(self, event=None):
@@ -1213,21 +1320,21 @@ class AuditLogViewer:
     <title>{report_title}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }}
-        h1 {{ color: #2c3e50; text-align: center; margin-bottom: 20px; }}
+        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #F5F5F5; color: #333333; }}
+        h1 {{ color: #333333; text-align: center; margin-bottom: 20px; }}
         .header-container {{ display: flex; justify-content: center; align-items: center; margin-bottom: 30px; }}
         .header-container h1 {{ margin: 0; }}
         .timezone-note {{
             text-align: center;
             font-style: italic;
-            color: #666;
+            color: #333333;
             margin-bottom: 20px;
             font-size: 0.9em;
         }}
         .action-button {{
             margin-left: 20px;
             padding: 8px 15px;
-            background-color: #007bff;
+            background-color: #607D8B;
             color: white;
             border: none;
             border-radius: 5px;
@@ -1236,7 +1343,7 @@ class AuditLogViewer:
             transition: background-color 0.2s;
         }}
         .action-button:hover {{
-            background-color: #0056b3;
+            background-color: #546E7A;
         }}
 
         /* Tab styles */
@@ -1245,8 +1352,8 @@ class AuditLogViewer:
         }}
         .tab-buttons {{
             display: flex;
-            border-bottom: 1px solid #ddd;
-            background-color: #f8f9fa;
+            border-bottom: 1px solid #CCCCCC;
+            background-color: #F5F5F5;
             border-radius: 8px 8px 0 0;
         }}
         .tab-button {{
@@ -1257,19 +1364,20 @@ class AuditLogViewer:
             font-size: 1em;
             border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
+            color: #333333;
         }}
         .tab-button.active {{
-            background-color: #fff;
-            border-bottom-color: #007bff;
-            color: #007bff;
+            background-color: #FFFFFF;
+            border-bottom-color: #607D8B;
+            color: #607D8B;
             font-weight: bold;
         }}
         .tab-button:hover {{
-            background-color: #e9ecef;
+            background-color: #E0E0E0;
         }}
         .tab-content {{
             display: none;
-            background-color: #fff;
+            background-color: #FFFFFF;
             padding: 20px;
             border-radius: 0 0 8px 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -1286,36 +1394,37 @@ class AuditLogViewer:
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
-            border-bottom: 1px solid #ddd;
-            background-color: #f1f3f4;
+            border-bottom: 1px solid #CCCCCC;
+            background-color: #F5F5F5;
             padding: 10px;
             border-radius: 6px 6px 0 0;
         }}
         .operation-tab-button {{
             padding: 8px 16px;
             background-color: transparent;
-            border: 1px solid #ddd;
+            border: 1px solid #CCCCCC;
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.9em;
             transition: all 0.2s ease;
             white-space: nowrap;
+            color: #333333;
         }}
         .operation-tab-button.active {{
-            background-color: #007bff;
+            background-color: #607D8B;
             color: white;
-            border-color: #007bff;
+            border-color: #607D8B;
         }}
         .operation-tab-button:hover {{
-            background-color: #e9ecef;
+            background-color: #E0E0E0;
         }}
         .operation-tab-button.active:hover {{
-            background-color: #0056b3;
+            background-color: #546E7A;
         }}
         .operation-tab-contents {{
-            border: 1px solid #ddd;
+            border: 1px solid #CCCCCC;
             border-top: none;
-            background-color: #fff;
+            background-color: #FFFFFF;
             border-radius: 0 0 6px 6px;
         }}
         .operation-tab-content {{
@@ -1332,11 +1441,11 @@ class AuditLogViewer:
             margin-bottom: 20px;
             padding-bottom: 10px;
             gap: 20px;
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 2px solid #CCCCCC;
         }}
         .operation-header h3 {{
             margin: 0;
-            color: #2c3e50;
+            color: #333333;
             font-size: 1.3em;
         }}
         .operation_description {{
@@ -3027,12 +3136,14 @@ class AuditLogViewer:
 # ===== EMAIL EXTRACTION COMPONENT =====
 
 class PSTExtractorApp:
-    def __init__(self, parent_frame, shared_data):
+    def __init__(self, parent_frame, shared_data, colors, style):
         self.parent = parent_frame
         self.shared_data = shared_data
+        self.colors = colors
+        self.style = style
 
         # Create a main frame to hold all widgets
-        self.main_frame = tk.Frame(self.parent)
+        self.main_frame = tk.Frame(self.parent, bg=self.colors['background'])
         self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         # Configure grid for responsiveness on the main_frame
@@ -3059,13 +3170,19 @@ class PSTExtractorApp:
         self.output_dir_path = self.shared_data['output_directory']
 
         # --- PST File Selection ---
-        tk.Label(self.main_frame, text="Select PST File:").grid(row=0, column=0, sticky="w", padx=10, pady=5)
-        tk.Entry(self.main_frame, textvariable=self.pst_file_path, width=50).grid(row=0, column=0, columnspan=1, sticky="ew", padx=(120, 5), pady=5)
-        tk.Button(self.main_frame, text="Browse", command=self.browse_pst_file).grid(row=0, column=1, sticky="w", padx=5, pady=5)
+        tk.Label(self.main_frame, text="Select PST File:",
+                bg=self.colors['background'], fg=self.colors['text']).grid(row=0, column=0, sticky="w", padx=10, pady=5)
+        tk.Entry(self.main_frame, textvariable=self.pst_file_path, width=50,
+                bg=self.colors['white'], fg=self.colors['text'], relief='flat', borderwidth=0,
+                highlightthickness=1, highlightcolor=self.colors['border'], highlightbackground=self.colors['border']).grid(row=0, column=0, columnspan=1, sticky="ew", padx=(120, 5), pady=5)
+        ttk.Button(self.main_frame, text="Browse", command=self.browse_pst_file).grid(row=0, column=1, sticky="w", padx=5, pady=5)
 
         # --- Output Directory Selection ---
-        tk.Label(self.main_frame, text="Select Output Directory:").grid(row=1, column=0, sticky="w", padx=10, pady=5)
-        self.output_dir_entry = tk.Entry(self.main_frame, textvariable=self.output_dir_path, width=50, fg='gray')
+        tk.Label(self.main_frame, text="Select Output Directory:",
+                bg=self.colors['background'], fg=self.colors['text']).grid(row=1, column=0, sticky="w", padx=10, pady=5)
+        self.output_dir_entry = tk.Entry(self.main_frame, textvariable=self.output_dir_path, width=50, 
+                                        fg='gray', bg=self.colors['white'], relief='flat', borderwidth=0,
+                                        highlightthickness=1, highlightcolor=self.colors['border'], highlightbackground=self.colors['border'])
         self.output_dir_entry.grid(row=1, column=0, columnspan=1, sticky="ew", padx=(170, 5), pady=5)
         
         # Set placeholder text and bind events
@@ -3074,42 +3191,52 @@ class PSTExtractorApp:
         self.output_dir_entry.bind('<FocusOut>', self.on_output_dir_focus_out)
         self.update_output_dir_display()
         
-        tk.Button(self.main_frame, text="Browse", command=self.browse_output_dir).grid(row=1, column=1, sticky="w", padx=5, pady=5)
+        ttk.Button(self.main_frame, text="Browse", command=self.browse_output_dir).grid(row=1, column=1, sticky="w", padx=5, pady=5)
 
         # --- Keywords CSV Selection ---
-        tk.Label(self.main_frame, text="Select Keywords CSV File:").grid(row=2, column=0, sticky="w", padx=10, pady=5)
-        tk.Entry(self.main_frame, textvariable=self.keywords_csv_path, width=50).grid(row=2, column=0, columnspan=1, sticky="ew", padx=(180, 5), pady=5)
-        tk.Button(self.main_frame, text="Browse", command=self.browse_keywords_csv).grid(row=2, column=1, sticky="w", padx=5, pady=5)
+        tk.Label(self.main_frame, text="Select Keywords CSV File:", 
+                bg=self.colors['background'], fg=self.colors['text']).grid(row=2, column=0, sticky="w", padx=10, pady=5)
+        tk.Entry(self.main_frame, textvariable=self.keywords_csv_path, width=50,
+                bg=self.colors['white'], fg=self.colors['text'], relief='flat', borderwidth=0,
+                highlightthickness=1, highlightcolor=self.colors['border'], highlightbackground=self.colors['border']).grid(row=2, column=0, columnspan=1, sticky="ew", padx=(180, 5), pady=5)
+        ttk.Button(self.main_frame, text="Browse", command=self.browse_keywords_csv).grid(row=2, column=1, sticky="w", padx=5, pady=5)
 
         # --- Email IDs Input ---
-        email_frame = tk.Frame(self.main_frame)
+        email_frame = tk.Frame(self.main_frame, bg=self.colors['background'])
         email_frame.grid(row=3, column=0, columnspan=2, sticky="ew", padx=10, pady=5)
         
-        tk.Label(email_frame, text="Enter Compromised Email IDs (one per line):").pack(side=tk.LEFT)
+        tk.Label(email_frame, text="Enter Compromised Email IDs (one per line):",
+                bg=self.colors['background'], fg=self.colors['text']).pack(side=tk.LEFT)
         
         # Button to import emails from audit tab
-        tk.Button(
+        ttk.Button(
             email_frame, 
             text="📥 Import from Audit Tab", 
-            command=self.import_emails_from_audit,
-            bg="#2196F3", 
-            fg="black",  # Changed from white to black for visibility
-            font=("Arial", 9, "bold")
+            command=self.import_emails_from_audit
         ).pack(side=tk.RIGHT, padx=5)
         
-        self.email_ids_text = scrolledtext.ScrolledText(self.main_frame, wrap=tk.WORD, width=60, height=8)
+        self.email_ids_text = scrolledtext.ScrolledText(self.main_frame, wrap=tk.WORD, width=60, height=8,
+                                                       bg=self.colors['white'], fg=self.colors['text'],
+                                                       relief='flat', borderwidth=0,
+                                                       highlightthickness=1, highlightcolor=self.colors['border'], 
+                                                       highlightbackground=self.colors['border'])
         self.email_ids_text.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=10, pady=5)
 
         # --- Debugging Option: Disable Cleanup ---
-        tk.Checkbutton(self.main_frame, text="Keep temporary files (for debugging)", variable=self.DISABLE_CLEANUP).grid(row=5, column=0, sticky="w", padx=10, pady=5)
+        tk.Checkbutton(self.main_frame, text="Keep temporary files (for debugging)", variable=self.DISABLE_CLEANUP,
+                      bg=self.colors['background'], fg=self.colors['text']).grid(row=5, column=0, sticky="w", padx=10, pady=5)
 
         # --- Action Buttons ---
-        self.extract_button = tk.Button(self.main_frame, text="Extract & Scan Emails", command=self.start_extraction, bg="#4CAF50", fg="black", font=("Arial", 12, "bold"), relief="raised", bd=3, padx=10, pady=5)
+        self.extract_button = ttk.Button(self.main_frame, text="Extract & Scan Emails", command=self.start_extraction, style="Secondary.TButton")
         self.extract_button.grid(row=5, column=1, sticky="e", pady=15) # Changed column and sticky for layout
 
         # --- Log Area ---
-        tk.Label(self.main_frame, text="Status Log:").grid(row=6, column=0, columnspan=2, sticky="w", padx=10, pady=5)
-        self.log_text = scrolledtext.ScrolledText(self.main_frame, wrap=tk.WORD, width=60, height=10, state='disabled', bg="#f0f0f0")
+        tk.Label(self.main_frame, text="Status Log:", bg=self.colors['background'], fg=self.colors['text']).grid(row=6, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+        self.log_text = scrolledtext.ScrolledText(self.main_frame, wrap=tk.WORD, width=60, height=10, state='disabled', 
+                                                 bg=self.colors['white'], fg=self.colors['text'],
+                                                 relief='flat', borderwidth=0,
+                                                 highlightthickness=1, highlightcolor=self.colors['border'], 
+                                                 highlightbackground=self.colors['border'])
         self.log_text.grid(row=7, column=0, columnspan=2, sticky="nsew", padx=10, pady=5)
         
         # Progress tracking
@@ -4176,6 +4303,7 @@ class PSTExtractorApp:
         results_window.title("Email Keyword Scan Results")
         results_window.geometry("1200x600")
         results_window.resizable(True, True)
+        results_window.configure(bg=self.colors['background'])
         
         # Create main frame
         main_frame = ttk.Frame(results_window)
@@ -4260,9 +4388,9 @@ class PSTExtractorApp:
             self.tree_email_data[item] = email_data
         
         # Configure row colors and row height for text wrapping
-        tree.tag_configure("sensitive", background="#ffcccc", foreground="black")  # Light red with black text
-        tree.tag_configure("scan_error", background="#ffffcc", foreground="black")  # Light yellow with black text
-        tree.tag_configure("normal", background="white", foreground="black")  # White with black text
+        tree.tag_configure("sensitive", background="#FFE6E6", foreground=self.colors['text'])  # Very light red with dark text
+        tree.tag_configure("scan_error", background="#FFF8E1", foreground=self.colors['text'])  # Very light yellow with dark text
+        tree.tag_configure("normal", background=self.colors['white'], foreground=self.colors['text'])  # White with dark text
         
         # Configure the treeview to allow multiline text with reduced row height
         style = ttk.Style()
@@ -4318,6 +4446,7 @@ class PSTExtractorApp:
         details_window.title(f"Email Details: {email_data['subject'][:50]}...")
         details_window.geometry("800x600")
         details_window.resizable(True, True)
+        details_window.configure(bg=self.colors['background'])
         
         # Create main frame with scrollbar
         main_frame = ttk.Frame(details_window)
@@ -4332,7 +4461,7 @@ class PSTExtractorApp:
         ttk.Label(header_frame, text=f"From: {email_data['author']}").pack(anchor="w")
         ttk.Label(header_frame, text=f"To: {email_data['recipients']}").pack(anchor="w")
         ttk.Label(header_frame, text=f"Total Keyword Matches: {email_data['total_matches']}", 
-                 font=("Arial", 10, "bold"), foreground="red" if email_data['total_matches'] > 0 else "green").pack(anchor="w")
+                 font=("Arial", 10, "bold"), foreground=self.colors['secondary'] if email_data['total_matches'] > 0 else self.colors['text']).pack(anchor="w")
         
         # Add button to open email file
         def open_email_file():
@@ -4364,7 +4493,7 @@ class PSTExtractorApp:
             
             # Configure matches tree for text wrapping with reduced height
             matches_style = ttk.Style()
-            matches_style.configure("Matches.Treeview", rowheight=40, foreground="black")  # Reduced from 60 to 40
+            matches_style.configure("Matches.Treeview", rowheight=40, foreground=self.colors['text'], background=self.colors['white'])  # Reduced from 60 to 40
             matches_tree.configure(style="Matches.Treeview")
             
             # Dictionary to store file paths by tree item
