@@ -1,8 +1,6 @@
-# Breach Analysis Toolkit
+# Mayo's Outlook Forensics tool
 
 ## What This Tool Does For You
-
-**Bottom line:** You go from "we think someone accessed emails" to "here are the exact 47 emails they viewed, and 12 of them contained sensitive customer data."
 
 **If you're investigating a potential email breach**, this tool helps you:
 
@@ -10,6 +8,8 @@
 2. **Get the actual compromised emails** - Extract specific emails from PST files based on the audit trail
 3. **Scan for sensitive data** - Automatically search through emails and attachments for keywords like "password", "SSN", etc.
 4. **Create interactable reports** - Generate HTML reports you can actually share with management or law enforcement
+
+**Bottom line:** You go from "we think someone accessed emails" to "here are the exact 47 emails they viewed, and 12 of them contained sensitive customer data."
 
 ## What You'll Actually Get
 
