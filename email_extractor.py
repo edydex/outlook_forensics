@@ -821,6 +821,9 @@ class PSTExtractorApp:
             <tbody>
 """
 
+            # Store email data and generate both table rows and JavaScript data
+            email_js_data = []
+            
             # Add email rows
             for i, email_data in enumerate(sorted_emails):
                 date_str = email_data['date'].strftime("%Y-%m-%d %H:%M") if isinstance(email_data['date'], datetime) else str(email_data['date'])
@@ -846,8 +849,8 @@ class PSTExtractorApp:
                     else:
                         # Break into chunks for better wrapping - increased from 3 to 5
                         chunks = []
-                        for i in range(0, len(keyword_list), 5):
-                            chunk = ", ".join(keyword_list[i:i+5])
+                        for chunk_i in range(0, len(keyword_list), 5):
+                            chunk = ", ".join(keyword_list[chunk_i:chunk_i+5])
                             chunks.append(chunk)
                         sensitive_text = "\n".join(chunks)
                 else:
@@ -866,8 +869,35 @@ class PSTExtractorApp:
                 subject_escaped = subject.replace('"', '&quot;').replace('<', '&lt;').replace('>', '&gt;')
                 sensitive_escaped = sensitive_text.replace('"', '&quot;').replace('<', '&lt;').replace('>', '&gt;')
                 
+                # Create safe JavaScript object for this email
+                try:
+                    js_email = {
+                        'subject': email_data['subject'].replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n'),
+                        'delivery_time': email_data['delivery_time'],
+                        'author': email_data['author'].replace('\\', '\\\\').replace('"', '\\"'),
+                        'recipients': email_data['recipients'].replace('\\', '\\\\').replace('"', '\\"'),
+                        'total_matches': email_data['total_matches'],
+                        'sensitive_matches': email_data['sensitive_matches'],
+                        'scan_errors': email_data['scan_errors'],
+                        'file_paths': email_data.get('file_paths', {})
+                    }
+                    email_js_data.append(js_email)
+                except Exception as e:
+                    # If there's an error creating the JS object, create a safe fallback
+                    js_email = {
+                        'subject': 'Error processing email data',
+                        'delivery_time': 'Unknown',
+                        'author': 'Unknown',
+                        'recipients': 'Unknown',
+                        'total_matches': 0,
+                        'sensitive_matches': {},
+                        'scan_errors': [f'Error processing email: {str(e)}'],
+                        'file_paths': {}
+                    }
+                    email_js_data.append(js_email)
+                
                 html_content += f"""
-                <tr class="email-row {tag}" onclick="showEmailDetails({i})">
+                <tr class="email-row {tag}" onclick="showEmailDetails({i})" data-email-index="{i}">
                     <td>{date_str}</td>
                     <td>{subject_escaped}</td>
                     <td class="sensitive-matches">{sensitive_escaped}</td>
@@ -892,43 +922,56 @@ class PSTExtractorApp:
         const emailData = [
 """
 
-            # Add JavaScript email data
-            for email_data in sorted_emails:
-                # Create safe JavaScript object
-                js_email = {
-                    'subject': email_data['subject'].replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n'),
-                    'delivery_time': email_data['delivery_time'],
-                    'author': email_data['author'].replace('\\', '\\\\').replace('"', '\\"'),
-                    'recipients': email_data['recipients'].replace('\\', '\\\\').replace('"', '\\"'),
-                    'total_matches': email_data['total_matches'],
-                    'sensitive_matches': email_data['sensitive_matches'],
-                    'scan_errors': email_data['scan_errors'],
-                    'file_paths': email_data.get('file_paths', {})
-                }
-                
-                html_content += f"            {json.dumps(js_email, ensure_ascii=False)},\n"
+            # Add JavaScript email data using the collected array
+            for js_email in email_js_data:
+                try:
+                    html_content += f"            {json.dumps(js_email, ensure_ascii=False)},\n"
+                except Exception as e:
+                    # If JSON serialization fails, add a safe fallback
+                    fallback_email = {
+                        'subject': 'JSON serialization error',
+                        'delivery_time': 'Unknown',
+                        'author': 'Unknown',
+                        'recipients': 'Unknown',
+                        'total_matches': 0,
+                        'sensitive_matches': {},
+                        'scan_errors': [f'JSON error: {str(e)}'],
+                        'file_paths': {}
+                    }
+                    html_content += f"            {json.dumps(fallback_email)},\n"
             
             html_content += """
         ];
 
         function showEmailDetails(index) {
+            // Validate index
+            if (index < 0 || index >= emailData.length) {
+                alert(`Error: Invalid email index ${index}. Total emails: ${emailData.length}`);
+                return;
+            }
+            
             const email = emailData[index];
+            if (!email) {
+                alert(`Error: No email data found at index ${index}`);
+                return;
+            }
+            
             const modal = document.getElementById('emailModal');
             const content = document.getElementById('modalContent');
             
             let html = `
                 <div class="email-info">
                     <h3>Email Information</h3>
-                    <p><strong>Subject:</strong> ${email.subject}</p>
-                    <p><strong>Date:</strong> ${email.delivery_time}</p>
-                    <p><strong>From:</strong> ${email.author}</p>
-                    <p><strong>To:</strong> ${email.recipients}</p>
-                    <p><strong>Total Keyword Matches:</strong> <span style="color: ${email.total_matches > 0 ? 'red' : 'green'}; font-weight: bold;">${email.total_matches}</span></p>
-                    <button class="open-email-btn" onclick="openEmailFile('${email.file_paths['Email Body'] || ''}')">Open Email File</button>
+                    <p><strong>Subject:</strong> ${email.subject || 'Unknown'}</p>
+                    <p><strong>Date:</strong> ${email.delivery_time || 'Unknown'}</p>
+                    <p><strong>From:</strong> ${email.author || 'Unknown'}</p>
+                    <p><strong>To:</strong> ${email.recipients || 'Unknown'}</p>
+                    <p><strong>Total Keyword Matches:</strong> <span style="color: ${email.total_matches > 0 ? 'red' : 'green'}; font-weight: bold;">${email.total_matches || 0}</span></p>
+                    <button class="open-email-btn" onclick="openEmailFile('${(email.file_paths && email.file_paths['Email Body']) || ''}')">Open Email File</button>
                 </div>
             `;
             
-            if (Object.keys(email.sensitive_matches).length > 0) {
+            if (email.sensitive_matches && Object.keys(email.sensitive_matches).length > 0) {
                 html += `
                     <div>
                         <h3>Sensitive Keyword Matches</h3>
@@ -946,12 +989,14 @@ class PSTExtractorApp:
                 for (const [source, keywords] of Object.entries(email.sensitive_matches)) {
                     const keywordList = [];
                     let totalCount = 0;
-                    for (const [keyword, count] of Object.entries(keywords)) {
-                        keywordList.push(`${keyword} (${count})`);
-                        totalCount += count;
+                    if (keywords && typeof keywords === 'object') {
+                        for (const [keyword, count] of Object.entries(keywords)) {
+                            keywordList.push(`${keyword} (${count})`);
+                            totalCount += count;
+                        }
                     }
                     const keywordsStr = keywordList.join(', ');
-                    const filePath = email.file_paths[source] || '';
+                    const filePath = (email.file_paths && email.file_paths[source]) || '';
                     
                     html += `
                         <tr>
@@ -970,7 +1015,7 @@ class PSTExtractorApp:
                 `;
             }
             
-            if (email.scan_errors.length > 0) {
+            if (email.scan_errors && email.scan_errors.length > 0) {
                 html += `
                     <div class="errors-section">
                         <h3>Scan Errors</h3>
