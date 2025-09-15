@@ -3167,7 +3167,6 @@ class PSTExtractorApp:
         self.DISABLE_CLEANUP = tk.BooleanVar(value=False) # New checkbox variable for debugging
         self.keywords_list = []  # Store loaded keywords
         self.email_scan_results = []  # Store scan results for report generation
-        self.tree_email_data = {}  # Store email data for tree items
         
         # Use shared output directory
         self.output_dir_path = self.shared_data['output_directory']
@@ -4304,7 +4303,7 @@ class PSTExtractorApp:
             return
         
         # Create new window
-        results_window = tk.Toplevel(self.master)
+        results_window = tk.Toplevel(self)
         results_window.title("Email Keyword Scan Results")
         results_window.geometry("1200x600")
         results_window.resizable(True, True)
@@ -4344,8 +4343,8 @@ class PSTExtractorApp:
         # Sort emails by date
         sorted_emails = sorted(self.email_scan_results, key=lambda x: x['date'])
         
-        # Dictionary to store email data by tree item id
-        self.tree_email_data = {}
+        # Dictionary to store email data by tree item id (local to this window)
+        tree_email_data = {}
         
         # Add emails to tree
         for email_data in sorted_emails:
@@ -4390,7 +4389,7 @@ class PSTExtractorApp:
             
             item = tree.insert("", "end", values=(date_str, subject, sensitive_text), tags=(tag,))
             # Store the email data using the tree item id as key
-            self.tree_email_data[item] = email_data
+            tree_email_data[item] = email_data
         
         # Configure row colors and row height for text wrapping
         tree.tag_configure("sensitive", background="#FFE6E6", foreground=self.colors['text'])  # Very light red with dark text
@@ -4419,7 +4418,7 @@ class PSTExtractorApp:
             if tree.selection():
                 item = tree.selection()[0]
                 # Get the email data using the tree item id
-                email_data = self.tree_email_data.get(item)
+                email_data = tree_email_data.get(item)
                 
                 if email_data:
                     self.show_email_details(email_data)
@@ -4447,7 +4446,7 @@ class PSTExtractorApp:
 
     def show_email_details(self, email_data):
         """Show detailed information for a specific email."""
-        details_window = tk.Toplevel(self.master)
+        details_window = tk.Toplevel(self)
         details_window.title(f"Email Details: {email_data['subject'][:50]}...")
         details_window.geometry("800x600")
         details_window.resizable(True, True)
