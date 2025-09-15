@@ -46,10 +46,10 @@ The tabs talk to each other - you can send email IDs directly from the audit ana
 # Download/clone this repo, then:
 cd AuditApp
 chmod +x setup_mac.sh
-./setup.sh
+./setup_mac.sh
 
 # When it's done:
-source forensics_app_env/bin/activate
+source venv/bin/activate
 python forensics_app.py
 ```
 
