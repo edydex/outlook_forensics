@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayo's Outlook Forensics Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: white;
+            opacity: 0.95;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-tab {
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            margin: 0 5px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: #333;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h2 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-size: 2.5rem;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        h4 {
+            color: #666;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .highlight-box {
+            background: rgba(102, 126, 234, 0.05);
+            border: 2px solid #667eea;
+            color: #333;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+
+        .highlight-box h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .feature-card h4 {
+            color: #333;
+            margin-top: 0;
+        }
+
+        .download-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .step-numbers {
+            counter-reset: step-counter;
+        }
+
+        .step-numbers li {
+            counter-increment: step-counter;
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .step-numbers li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-left: 5px solid #f39c12;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: #856404;
+            margin-top: 0;
+        }
+
+        .sample-reports {
+            margin-top: 20px;
+        }
+
+        .report-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .report-selector input[type="radio"] {
+            display: none;
+        }
+
+        .report-selector label {
+            padding: 12px 24px;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .report-selector input[type="radio"]:checked + label {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .report-frame {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .report-frame.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .nav-tab {
+                margin-bottom: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content-area {
+                padding: 20px;
+            }
+            
+            .download-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mayo's Outlook Forensics</h1>
+            <p>Email Breach Investigation & Analysis Tool</p>
+        </div>
+
+        <nav class="nav-tabs">
+            <a href="#" class="nav-tab active" onclick="showTab('home', this); return false;">Home</a>
+            <a href="#" class="nav-tab" onclick="showTab('installation', this); return false;">Installation</a>
+            <a href="#" class="nav-tab" onclick="showTab('howto', this); return false;">How to Use</a>
+            <a href="#" class="nav-tab" onclick="showTab('samples', this); return false;">Sample Reports</a>
+        </nav>
+
+        <div class="content-area">
+            <!-- HOME TAB -->
+            <div id="home" class="tab-content active">
+                <h2>Welcome to Outlook Forensics Tool</h2>
+                
+                <div class="highlight-box">
+                    <h3>What This Tool Does For You</h3>
+                    <p><strong>If you're investigating a potential email breach</strong>, this tool helps you:</p>
+                    <ol>
+                        <li><strong>Find the smoking gun</strong> - Load Microsoft Purview audit logs and quickly spot suspicious email access patterns</li>
+                        <li><strong>Get the actual compromised emails</strong> - Extract specific emails from PST files based on the audit trail</li>
+                        <li><strong>Scan for sensitive data</strong> - Automatically search through emails and attachments for keywords like "password", "SSN", etc.</li>
+                        <li><strong>Create interactable reports</strong> - Generate HTML reports you can actually share with management or law enforcement</li>
+                    </ol>
+                    <p><strong>Bottom line:</strong> You go from "we think someone accessed emails" to "here are the exact 47 emails they viewed, and 12 of them contained sensitive customer data."</p>
+                </div>
+
+                <h3>What You'll Actually Get</h3>
+                <p>When you're done with an investigation, you'll have:</p>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h4>📊 Sortable HTML Reports</h4>
+                        <p>Interactive reports showing exactly when suspicious access happened</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📧 Individual Email Files</h4>
+                        <p>Each compromised message exported in .eml format for detailed analysis</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔍 Keyword Summaries</h4>
+                        <p>Complete breakdown of what sensitive keywords were found and where</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📑 Interactive Documentation</h4>
+                        <p>Professional reports suitable for incident reports and legal proceedings</p>
+                    </div>
+                </div>
+
+                <h3>Two Tools in One</h3>
+                <p>This combines two separate investigation workflows:</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h4>🔍 Tab 1: Audit Log Analysis</h4>
+                        <ul>
+                            <li>Load those massive CSV files from Microsoft Purview</li>
+                            <li>Filter out the noise to focus on actual suspicious activity</li>
+                            <li>Export clean, readable reports instead of spreadsheet hell</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📨 Tab 2: Email Extraction</h4>
+                        <ul>
+                            <li>Pull specific emails from PST files using the IDs you found in the audit logs</li>
+                            <li>Scan through email content and attachments for sensitive data</li>
+                            <li>Generate keyword match reports</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p><strong>The tabs talk to each other</strong> - you can send email IDs directly from the audit analysis to the extraction tool.</p>
+            </div>
+
+            <!-- INSTALLATION TAB -->
+            <div id="installation" class="tab-content">
+                <h2>Installation Guide</h2>
+                
+                <div class="warning-box">
+                    <h4>⚠️ Platform Compatibility</h4>
+                    <p><strong>Works best on Mac, okay on Linux. Windows is... complicated.</strong></p>
+                </div>
+
+                <h3>Download Files</h3>
+                <div class="download-buttons">
+                    <a href="forensics_app.py" download class="download-btn">📱 Main Application<br><small>forensics_app.py</small></a>
+                    <a href="setup_mac.sh" download class="download-btn">🍎 Mac Setup Script<br><small>setup_mac.sh</small></a>
+                    <a href="setup_linux.sh" download class="download-btn">🐧 Linux Setup Script<br><small>setup_linux.sh</small></a>
+                    <a href="setup_windows.sh" download class="download-btn">🪟 Windows Setup Script<br><small>setup_windows.sh</small></a>
+                </div>
+
+                <h3>Mac Setup (Easiest)</h3>
+                <div class="code-block">
+# Download/clone this repo, then:
+cd outlook_forensics
+chmod +x setup_mac.sh
+./setup_mac.sh
+
+# When it's done:
+source venv/bin/activate
+python forensics_app.py
+                </div>
+
+                <h3>Linux Setup</h3>
+                <div class="code-block">
+cd AuditApp
+chmod +x setup_linux.sh
+./setup_linux.sh
+
+source forensics_app_env/bin/activate
+python forensics_app.py
+                </div>
+
+                <h3>If the Setup Scripts Break</h3>
+                <p>Sometimes they do. Here's the manual way:</p>
+                
+                <h4>Install System Dependencies</h4>
+                <div class="code-block">
+# Mac
+brew install libpst tesseract
+
+# Linux
+sudo apt-get install pst-utils tesseract-ocr
+                </div>
+
+                <h4>Set Up Python Environment</h4>
+                <div class="code-block">
+# Create virtual environment
+python3 -m venv forensics_app_env
+source forensics_app_env/bin/activate
+
+# Install Python dependencies
+pip install -r requirements.txt
+                </div>
+
+                <div class="warning-box">
+                    <h4>🔧 Common Installation Issues</h4>
+                    <ul>
+                        <li><strong>"readpst command not found"</strong> - The setup script failed to install libpst</li>
+                        <li><strong>Permission errors</strong> - Make sure to run setup scripts with proper permissions</li>
+                        <li><strong>Python version conflicts</strong> - Use Python 3.7+ for best compatibility</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- HOW TO USE TAB -->
+            <div id="howto" class="tab-content">
+                <h2>How to Use This Tool</h2>
+
+                <h3>Step 1: Start with the Audit Logs</h3>
+                <ol class="step-numbers">
+                    <li>Get your Microsoft Purview audit log CSV file
+                        <ul>
+                            <li>Purview → Audit → Search → Activities - friendly names → <em>select everything under "Exchange mailbox activities"</em></li>
+                        </ul>
+                    </li>
+                    <li>Load it in the first tab</li>
+                    <li><em>(Optional)</em> Set your timezone so timestamps make sense</li>
+                    <li>Filter by suspicious IP addresses or date ranges</li>
+                    <li>Export to HTML to see what you're dealing with</li>
+                    <li>Refine the filters to filter out as much "friendly" activity as possible</li>
+                </ol>
+
+                <h3>Step 2: Get the Compromised Email IDs</h3>
+                <ul>
+                    <li>Click <strong>"Send MailItemsAccessed IDs to Extraction Tab"</strong>
+                        <ul>
+                            <li>This finds all the email Message-IDs that were accessed suspiciously</li>
+                            <li>They automatically get loaded into the second tab</li>
+                        </ul>
+                    </li>
+                    <li><em>(Optional)</em> "HardDelete", "Send", and other message ID's can also be extracted from the HTML from "Digested Information" tab</li>
+                </ul>
+
+                <h3>Step 3: Extract and Scan the Actual Emails</h3>
+                <ol class="step-numbers">
+                    <li>Switch to the Email Extraction tab</li>
+                    <li>Browse for affected PST file (usually huge)</li>
+                    <li>Pick an output folder</li>
+                    <li>Load a keywords file (one keyword per line - "password", "ssn", etc.)
+                        <ul>
+                            <li>Feel free to add your own, or remove any keywords</li>
+                        </ul>
+                    </li>
+                    <li>Click "Import from Audit Tab" to load those email IDs</li>
+                    <li>Hit "Extract & Scan Emails" and wait</li>
+                </ol>
+
+                <h3>Step 4: Check Your Results</h3>
+                <p>The HTML reports are what you actually want to look at. They're sortable and you can send them to people who need to understand what happened.</p>
+
+                <div class="highlight-box">
+                    <h3>What Files You'll Get</h3>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <h4>From Audit Log Analysis:</h4>
+                            <ul>
+                                <li>HTML report with sortable timeline of suspicious access</li>
+                                <li>CSV files split by IP address (if you want them)</li>
+                                <li>Filtered data exports</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>From Email Extraction:</h4>
+                            <ul>
+                                <li>Individual .eml files for each compromised email</li>
+                                <li>Folders with extracted attachments</li>
+                                <li>CSV summary showing which emails had sensitive keywords</li>
+                                <li>HTML report with keyword match details</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>File Types It Can Scan</h3>
+                <ul>
+                    <li><strong>Emails:</strong> Regular email body text (plain and HTML)</li>
+                    <li><strong>Attachments:</strong> PDF, Word docs, Excel sheets, images (needs OCR), text files</li>
+                </ul>
+
+                <div class="warning-box">
+                    <h4>⚠️ Important Security Notes</h4>
+                    <p>This tool processes potentially sensitive breach data:</p>
+                    <ul>
+                        <li>Only run it on secure, trusted computers</li>
+                        <li>Don't leave extracted emails sitting around afterward</li>
+                        <li>Be careful who you share the HTML reports with</li>
+                        <li>Follow your organization's data handling policies</li>
+                        <li>Consider encrypting the output folder</li>
+                    </ul>
+                </div>
+
+                <h3>Performance Tips</h3>
+                <ul>
+                    <li><strong>Large PST files:</strong> Extract to a local drive, not network storage</li>
+                    <li><strong>Lots of keywords:</strong> Start with a few specific ones first</li>
+                    <li><strong>Memory issues:</strong> Close other apps, especially browsers with lots of tabs</li>
+                    <li><strong>Network drives:</strong> Copy PST files locally before processing</li>
+                </ul>
+            </div>
+
+            <!-- SAMPLE REPORTS TAB -->
+            <div id="samples" class="tab-content">
+                <h2>Sample Reports</h2>
+                <p>Here are examples of the HTML reports generated by the tool. These demonstrate the kind of interactive, detailed analysis you'll get from your investigations.</p>
+                
+                <div class="sample-reports">
+                    <div class="report-selector">
+                        <input type="radio" id="audit-report" name="report" value="audit" checked>
+                        <label for="audit-report">📊 Audit Log Analysis</label>
+                        
+                        <input type="radio" id="email-report" name="report" value="email">
+                        <label for="email-report">📧 Email Keyword Scan</label>
+                    </div>
+                    
+                    <iframe id="audit-frame" class="report-frame active" src="audit_log_breakdown_sanitized.html"></iframe>
+                    <iframe id="email-frame" class="report-frame" src="email_scan_results_sanitized.html"></iframe>
+                </div>
+                
+                <div class="highlight-box">
+                    <h3>What You're Looking At</h3>
+                    <p><strong>Audit Log Analysis:</strong> Shows timeline of suspicious email access activities, filterable by IP address, date, and activity type.</p>
+                    <p><strong>Email Keyword Scan:</strong> Displays emails and attachments that contained sensitive information, with detailed keyword match counts.</p>
+                    <p><strong>Both reports are fully interactive</strong> - you can sort, filter, and drill down into specific incidents for detailed analysis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName, element) {
+            // Prevent default anchor behavior
+            event.preventDefault();
+            
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            element.classList.add('active');
+        }
+
+        // Handle report selector radio buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const reportRadios = document.querySelectorAll('input[name="report"]');
+            const reportFrames = document.querySelectorAll('.report-frame');
+            
+            reportRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    reportFrames.forEach(frame => {
+                        frame.classList.remove('active');
+                    });
+                    
+                    if (this.value === 'audit') {
+                        document.getElementById('audit-frame').classList.add('active');
+                    } else if (this.value === 'email') {
+                        document.getElementById('email-frame').classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
