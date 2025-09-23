@@ -44,7 +44,7 @@ The tabs talk to each other - you can send email IDs directly from the audit ana
 ### Mac Setup (Easiest)
 ```bash
 # Download/clone this repo, then:
-cd AuditApp
+cd outlook_forensics
 chmod +x setup_mac.sh
 ./setup_mac.sh
 
