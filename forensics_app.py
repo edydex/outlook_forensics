@@ -3422,6 +3422,14 @@ class PSTExtractorApp:
         
         return dict(matches)
 
+    def sanitize_error_message(self, error_message, attachment_path):
+        """Remove absolute paths from error messages to prevent path disclosure."""
+        filename = os.path.basename(attachment_path)
+        # Replace any occurrence of the full path with just the filename
+        sanitized = error_message.replace(attachment_path, filename)
+        
+        return sanitized
+
     def extract_attachment_text(self, attachment_path):
         """Extract text from various file types for keyword scanning."""
         text_content = ""
@@ -3445,7 +3453,8 @@ class PSTExtractorApp:
                     return None, "PDF processing library not available"
                 except Exception as e:
                     self.log_message(f"Error reading PDF {attachment_path}: {e}")
-                    return None, f"PDF read error: {e}"
+                    sanitized_error = self.sanitize_error_message(str(e), attachment_path)
+                    return None, f"PDF read error: {sanitized_error}"
             
             elif file_ext in ['.doc', '.docx']:
                 try:
@@ -3457,7 +3466,8 @@ class PSTExtractorApp:
                     return None, "Word processing library not available"
                 except Exception as e:
                     self.log_message(f"Error reading Word document {attachment_path}: {e}")
-                    return None, f"Word document read error: {e}"
+                    sanitized_error = self.sanitize_error_message(str(e), attachment_path)
+                    return None, f"Word document read error: {sanitized_error}"
             
             elif file_ext in ['.xls', '.xlsx']:
                 try:
@@ -3471,7 +3481,8 @@ class PSTExtractorApp:
                     return None, "Excel processing library not available"
                 except Exception as e:
                     self.log_message(f"Error reading Excel file {attachment_path}: {e}")
-                    return None, f"Excel read error: {e}"
+                    sanitized_error = self.sanitize_error_message(str(e), attachment_path)
+                    return None, f"Excel read error: {sanitized_error}"
             
             elif file_ext in ['.png', '.jpg', '.jpeg', '.tiff', '.bmp']:
                 try:
@@ -3484,14 +3495,16 @@ class PSTExtractorApp:
                     return None, "OCR libraries not available"
                 except Exception as e:
                     self.log_message(f"Error performing OCR on {attachment_path}: {e}")
-                    return None, f"OCR error: {e}"
+                    sanitized_error = self.sanitize_error_message(str(e), attachment_path)
+                    return None, f"OCR error: {sanitized_error}"
             
             else:
                 return None, f"Unsupported file type: {file_ext}"
         
         except Exception as e:
             self.log_message(f"General error extracting text from {attachment_path}: {e}")
-            return None, f"Extraction error: {e}"
+            sanitized_error = self.sanitize_error_message(str(e), attachment_path)
+            return None, f"Extraction error: {sanitized_error}"
         
         return text_content, None
 
@@ -4317,23 +4330,8 @@ class PSTExtractorApp:
         
         function openFile(filePath) {
             if (filePath) {
-                // Get file extension to determine how to open
-                const extension = filePath.toLowerCase().split('.').pop();
-                const browserViewableExtensions = ['html', 'htm', 'pdf'];
-                
-                if (browserViewableExtensions.includes(extension)) {
-                    // Open in a new tab for browser-viewable files
-                    window.open(filePath, '_blank');
-                } else {
-                    // For other file types, create a link and attempt to download/open
-                    // This works better with relative paths in a browser context
-                    const link = document.createElement('a');
-                    link.href = filePath;
-                    link.download = filePath.split('/').pop(); // Use filename as download name
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
+                // Open all attachments in a new tab
+                window.open(filePath, '_blank');
             } else {
                 alert('File path not available');
             }
