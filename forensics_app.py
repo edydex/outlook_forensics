@@ -3895,6 +3895,14 @@ class PSTExtractorApp:
             emails_with_matches = len([e for e in self.email_scan_results if e['total_matches'] > 0])
             emails_with_errors = len([e for e in self.email_scan_results if e['scan_errors']])
             
+            def convert_to_relative_path(absolute_path, base_dir):
+                """Convert an absolute path to a relative path from base_dir."""
+                try:
+                    return os.path.relpath(absolute_path, base_dir)
+                except (ValueError, TypeError):
+                    # If conversion fails, return the original path
+                    return absolute_path
+            
             html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -4135,6 +4143,11 @@ class PSTExtractorApp:
                 
                 # Create safe JavaScript object for this email
                 try:
+                    # Convert file paths to relative paths
+                    relative_file_paths = {}
+                    for file_key, file_path in email_data.get('file_paths', {}).items():
+                        relative_file_paths[file_key] = convert_to_relative_path(file_path, output_dir)
+                    
                     js_email = {
                         'subject': email_data['subject'].replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n'),
                         'delivery_time': email_data['delivery_time'],
@@ -4143,7 +4156,7 @@ class PSTExtractorApp:
                         'total_matches': email_data['total_matches'],
                         'sensitive_matches': email_data['sensitive_matches'],
                         'scan_errors': email_data['scan_errors'],
-                        'file_paths': email_data.get('file_paths', {})
+                        'file_paths': relative_file_paths
                     }
                     email_js_data.append(js_email)
                 except Exception as e:
@@ -4304,10 +4317,23 @@ class PSTExtractorApp:
         
         function openFile(filePath) {
             if (filePath) {
-                // Try to open file - this will work if the file exists locally
-                const link = document.createElement('a');
-                link.href = 'file://' + filePath;
-                link.click();
+                // Get file extension to determine how to open
+                const extension = filePath.toLowerCase().split('.').pop();
+                const browserViewableExtensions = ['html', 'htm', 'pdf'];
+                
+                if (browserViewableExtensions.includes(extension)) {
+                    // Open in a new tab for browser-viewable files
+                    window.open(filePath, '_blank');
+                } else {
+                    // For other file types, create a link and attempt to download/open
+                    // This works better with relative paths in a browser context
+                    const link = document.createElement('a');
+                    link.href = filePath;
+                    link.download = filePath.split('/').pop(); // Use filename as download name
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
             } else {
                 alert('File path not available');
             }
