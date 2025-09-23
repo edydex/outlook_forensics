@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             min-height: 100vh;
             line-height: 1.6;
         }
@@ -26,34 +26,36 @@
 
         .header {
             text-align: center;
-            color: white;
+            color: #495057;
             margin-bottom: 30px;
         }
 
         .header h1 {
             font-size: 3rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            color: #343a40;
         }
 
         .header p {
             font-size: 1.2rem;
-            color: white;
-            opacity: 0.95;
+            color: #6c757d;
+            opacity: 1;
         }
 
         .nav-tabs {
             display: flex;
             justify-content: center;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.9);
             border-radius: 15px;
             padding: 10px;
             margin-bottom: 30px;
             backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .nav-tab {
-            color: white;
+            color: #495057;
             text-decoration: none;
             padding: 15px 25px;
             margin: 0 5px;
@@ -63,13 +65,13 @@
         }
 
         .nav-tab:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(76, 175, 80, 0.1);
             transform: translateY(-2px);
         }
 
         .nav-tab.active {
-            background: white;
-            color: #333;
+            background: #4caf50;
+            color: white;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
@@ -90,8 +92,8 @@
         }
 
         h2 {
-            color: #333;
-            border-bottom: 3px solid #667eea;
+            color: #343a40;
+            border-bottom: 3px solid #4caf50;
             padding-bottom: 10px;
             margin-bottom: 25px;
             font-size: 2.5rem;
@@ -128,8 +130,8 @@
         }
 
         .highlight-box {
-            background: rgba(102, 126, 234, 0.05);
-            border: 2px solid #667eea;
+            background: rgba(76, 175, 80, 0.08);
+            border: 2px solid #81c784;
             color: #333;
             padding: 25px;
             border-radius: 15px;
@@ -137,7 +139,7 @@
         }
 
         .highlight-box h3 {
-            color: #667eea;
+            color: #495057;
             margin-top: 0;
         }
 
@@ -152,7 +154,7 @@
             background: #f8f9fa;
             padding: 25px;
             border-radius: 15px;
-            border-left: 5px solid #667eea;
+            border-left: 5px solid #66bb6a;
         }
 
         .feature-card h4 {
@@ -169,7 +171,7 @@
 
         .download-btn {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
             color: white;
             padding: 15px 25px;
             border-radius: 10px;
@@ -199,18 +201,19 @@
             counter-reset: step-counter;
         }
 
-        .step-numbers li {
+        .step-numbers > li {
             counter-increment: step-counter;
             position: relative;
             padding-left: 40px;
+            list-style: none;
         }
 
-        .step-numbers li::before {
+        .step-numbers > li::before {
             content: counter(step-counter);
             position: absolute;
             left: 0;
             top: 0;
-            background: #667eea;
+            background: #66bb6a;
             color: white;
             width: 25px;
             height: 25px;
@@ -220,6 +223,21 @@
             justify-content: center;
             font-weight: bold;
             font-size: 0.9rem;
+        }
+
+        .step-numbers li ul {
+            margin-top: 8px;
+        }
+
+        .step-numbers li ul li {
+            position: relative;
+            padding-left: 0;
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+
+        .step-numbers li ul li::before {
+            display: none;
         }
 
         .warning-box {
@@ -261,9 +279,9 @@
         }
 
         .report-selector input[type="radio"]:checked + label {
-            background: #667eea;
+            background: #4caf50;
             color: white;
-            border-color: #667eea;
+            border-color: #4caf50;
         }
 
         .report-frame {
@@ -276,6 +294,47 @@
 
         .report-frame.active {
             display: block;
+        }
+
+        .app-screenshots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .screenshot-container {
+            text-align: center;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .screenshot-container h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #2e7d32;
+        }
+
+        .app-screenshot {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .app-screenshot:hover {
+            transform: scale(1.02);
+        }
+
+        .screenshot-container p {
+            color: #6c757d;
+            font-style: italic;
+            margin: 0;
         }
 
         @media (max-width: 768px) {
@@ -297,6 +356,15 @@
             
             .download-buttons {
                 grid-template-columns: 1fr;
+            }
+
+            .app-screenshots {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .screenshot-container {
+                padding: 15px;
             }
         }
     </style>
@@ -332,23 +400,39 @@
                     <p><strong>Bottom line:</strong> You go from "we think someone accessed emails" to "here are the exact 47 emails they viewed, and 12 of them contained sensitive customer data."</p>
                 </div>
 
+                <h3>What the Application Looks Like</h3>
+                <p>Here's what you'll see when you run the tool - a clean, professional interface designed for forensic investigations:</p>
+                
+                <div class="app-screenshots">
+                    <div class="screenshot-container">
+                        <h4>Audit Log Analysis Tab</h4>
+                        <img src="ss/log_analysis.png" alt="Audit Log Analysis Interface" class="app-screenshot">
+                        <p>Load and analyze Microsoft Purview audit logs with filtering and export capabilities.</p>
+                    </div>
+                    <div class="screenshot-container">
+                        <h4>Email Extraction Tab</h4>
+                        <img src="ss/email_extraction.png" alt="Email Extraction Interface" class="app-screenshot">
+                        <p>Extract specific emails from PST files and scan for sensitive keywords.</p>
+                    </div>
+                </div>
+
                 <h3>What You'll Actually Get</h3>
                 <p>When you're done with an investigation, you'll have:</p>
                 <div class="features-grid">
                     <div class="feature-card">
-                        <h4>📊 Sortable HTML Reports</h4>
+                        <h4>Sortable HTML Reports</h4>
                         <p>Interactive reports showing exactly when suspicious access happened</p>
                     </div>
                     <div class="feature-card">
-                        <h4>📧 Individual Email Files</h4>
+                        <h4>Individual Email Files</h4>
                         <p>Each compromised message exported in .eml format for detailed analysis</p>
                     </div>
                     <div class="feature-card">
-                        <h4>🔍 Keyword Summaries</h4>
+                        <h4>Keyword Summaries</h4>
                         <p>Complete breakdown of what sensitive keywords were found and where</p>
                     </div>
                     <div class="feature-card">
-                        <h4>📑 Interactive Documentation</h4>
+                        <h4>Interactive Documentation</h4>
                         <p>Professional reports suitable for incident reports and legal proceedings</p>
                     </div>
                 </div>
@@ -358,7 +442,7 @@
                 
                 <div class="features-grid">
                     <div class="feature-card">
-                        <h4>🔍 Tab 1: Audit Log Analysis</h4>
+                        <h4>Tab 1: Audit Log Analysis</h4>
                         <ul>
                             <li>Load those massive CSV files from Microsoft Purview</li>
                             <li>Filter out the noise to focus on actual suspicious activity</li>
@@ -366,7 +450,7 @@
                         </ul>
                     </div>
                     <div class="feature-card">
-                        <h4>📨 Tab 2: Email Extraction</h4>
+                        <h4>Tab 2: Email Extraction</h4>
                         <ul>
                             <li>Pull specific emails from PST files using the IDs you found in the audit logs</li>
                             <li>Scan through email content and attachments for sensitive data</li>
@@ -383,16 +467,16 @@
                 <h2>Installation Guide</h2>
                 
                 <div class="warning-box">
-                    <h4>⚠️ Platform Compatibility</h4>
+                    <h4>Platform Compatibility</h4>
                     <p><strong>Works best on Mac, okay on Linux. Windows is... complicated.</strong></p>
                 </div>
 
                 <h3>Download Files</h3>
                 <div class="download-buttons">
-                    <a href="forensics_app.py" download class="download-btn">📱 Main Application<br><small>forensics_app.py</small></a>
-                    <a href="setup_mac.sh" download class="download-btn">🍎 Mac Setup Script<br><small>setup_mac.sh</small></a>
-                    <a href="setup_linux.sh" download class="download-btn">🐧 Linux Setup Script<br><small>setup_linux.sh</small></a>
-                    <a href="setup_windows.sh" download class="download-btn">🪟 Windows Setup Script<br><small>setup_windows.sh</small></a>
+                    <a href="forensics_app.py" download class="download-btn">Main Application<br><small>forensics_app.py</small></a>
+                    <a href="setup_mac.sh" download class="download-btn">Mac Setup Script<br><small>setup_mac.sh</small></a>
+                    <a href="setup_linux.sh" download class="download-btn">Linux Setup Script<br><small>setup_linux.sh</small></a>
+                    <a href="setup_windows.sh" download class="download-btn">Windows Setup Script<br><small>setup_windows.sh</small></a>
                 </div>
 
                 <h3>Mac Setup (Easiest)</h3>
@@ -440,7 +524,7 @@ pip install -r requirements.txt
                 </div>
 
                 <div class="warning-box">
-                    <h4>🔧 Common Installation Issues</h4>
+                    <h4>Common Installation Issues</h4>
                     <ul>
                         <li><strong>"readpst command not found"</strong> - The setup script failed to install libpst</li>
                         <li><strong>Permission errors</strong> - Make sure to run setup scripts with proper permissions</li>
@@ -525,7 +609,7 @@ pip install -r requirements.txt
                 </ul>
 
                 <div class="warning-box">
-                    <h4>⚠️ Important Security Notes</h4>
+                    <h4>Important Security Notes</h4>
                     <p>This tool processes potentially sensitive breach data:</p>
                     <ul>
                         <li>Only run it on secure, trusted computers</li>
@@ -553,10 +637,10 @@ pip install -r requirements.txt
                 <div class="sample-reports">
                     <div class="report-selector">
                         <input type="radio" id="audit-report" name="report" value="audit" checked>
-                        <label for="audit-report">📊 Audit Log Analysis</label>
+                        <label for="audit-report">Audit Log Analysis</label>
                         
                         <input type="radio" id="email-report" name="report" value="email">
-                        <label for="email-report">📧 Email Keyword Scan</label>
+                        <label for="email-report">Email Keyword Scan</label>
                     </div>
                     
                     <iframe id="audit-frame" class="report-frame active" src="audit_log_breakdown_sanitized.html"></iframe>
