@@ -28,6 +28,15 @@ class BreachAnalysisApp(tk.Tk):
         self.geometry("1400x900")
         self.minsize(1000, 700)
         
+        # Set application icon
+        try:
+            icon_path = os.path.join(os.path.dirname(__file__), 'favicon_512.png')
+            if os.path.exists(icon_path):
+                self.iconphoto(True, tk.PhotoImage(file=icon_path))
+        except Exception as e:
+            print(f"Could not load application icon: {e}")
+            pass  # Continue without icon if there's an issue
+        
         # Define consistent color scheme
         self.colors = {
             'background': '#F5F5F5',      # Very light gray background
