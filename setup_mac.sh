@@ -47,9 +47,15 @@ source venv/bin/activate
 echo "Upgrading pip..."
 pip install --upgrade pip
 
+# Download sample keywords file if not present
+if [ ! -f "sample_keywords.csv" ]; then
+    echo "Downloading sample keywords file..."
+    curl -O https://raw.githubusercontent.com/edydex/outlook_forensics/main/sample_keywords.csv
+fi
+
 # Install required Python packages
 echo "Installing required Python packages..."
-pip install PyPDF2 python-docx pandas pillow pytesseract openpyxl
+pip install PyPDF2==3.0.1 python-docx==0.8.11 pandas==2.1.3 pillow==10.1.0 pytesseract==0.3.10 openpyxl==3.1.2 xlrd==2.0.1 pytz==2023.3
 
 # Optional: Install Tesseract for OCR (if user wants to scan images)
 echo "Installing Tesseract OCR (optional, for scanning images)..."
