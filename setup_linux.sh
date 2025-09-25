@@ -3,6 +3,12 @@
 echo "PST Email Extractor Setup Script for Linux"
 echo "==========================================="
 
+# Create project directory
+PROJECT_DIR="outlook_forensics"
+echo "Creating project directory: $PROJECT_DIR"
+mkdir -p "$PROJECT_DIR"
+cd "$PROJECT_DIR"
+
 # Detect Linux distribution
 if command -v apt-get &> /dev/null; then
     PKG_MANAGER="apt"
@@ -56,9 +62,24 @@ source forensics_app_env/bin/activate
 echo "Upgrading pip..."
 pip install --upgrade pip
 
-# Download sample keywords file if not present
+# Download required files
+echo "Downloading application files..."
+
+# Download main Python application
+if [ ! -f "forensics_app.py" ]; then
+    echo "Downloading forensics_app.py..."
+    curl -O https://raw.githubusercontent.com/edydex/outlook_forensics/main/forensics_app.py
+fi
+
+# Download favicon
+if [ ! -f "favicon_512.png" ]; then
+    echo "Downloading favicon_512.png..."
+    curl -O https://raw.githubusercontent.com/edydex/outlook_forensics/main/favicon_512.png
+fi
+
+# Download sample keywords file
 if [ ! -f "sample_keywords.csv" ]; then
-    echo "Downloading sample keywords file..."
+    echo "Downloading sample_keywords.csv..."
     curl -O https://raw.githubusercontent.com/edydex/outlook_forensics/main/sample_keywords.csv
 fi
 
@@ -71,8 +92,11 @@ echo "============================================"
 echo "Setup completed successfully!"
 echo "============================================"
 echo ""
+echo "All files have been downloaded to: $(pwd)"
+echo ""
 echo "To run the Forensics Application:"
-echo "1. Navigate to the project directory"
+echo "1. Navigate to the project directory (if not already there):"
+echo "   cd $PROJECT_DIR"
 echo "2. Activate the virtual environment:"
 echo "   source forensics_app_env/bin/activate"
 echo "3. Run the application:"

@@ -546,33 +546,83 @@
                     <p><strong>Works best on Mac, okay on Linux. Windows is... complicated.</strong></p>
                 </div>
 
-                <h3>Download Files</h3>
+                <h3>Review the Code First (Recommended)</h3>
+                <p>Ideally, you shouldn't run scripts you find on the internet, so please review the files on the GitHub repo and install it on your own.</p>
+                
                 <div class="download-buttons">
-                    <a href="forensics_app.py" download class="download-btn">Main Application<br><small>forensics_app.py</small></a>
-                    <a href="setup_mac.sh" download class="download-btn">Mac Setup Script<br><small>setup_mac.sh</small></a>
-                    <a href="setup_linux.sh" download class="download-btn">Linux Setup Script<br><small>setup_linux.sh</small></a>
-                    <a href="setup_windows.sh" download class="download-btn">Windows Setup Script<br><small>setup_windows.sh</small></a>
+                    <a href="https://github.com/edydex/outlook_forensics" target="_blank" class="download-btn">• View GitHub Repository<br><small>Review all source code</small></a>
                 </div>
 
-                <h3>Mac Setup (Easiest)</h3>
+                <p>But if you're a lazy bum who trusts things they find on internet way to much:</p>
+
+                <h3>Install by Running a Script</h3>
+                <p>Each setup script automatically downloads all required files and sets everything up for you!</p>
+                <p><strong>Note:</strong> You'll need to make the script executable with <code>chmod +x</code> before running it.</p>
+                
+                <div class="download-buttons">
+                    <a href="setup_mac.sh" download class="download-btn">Mac Setup Script<br><small>Downloads everything automatically</small></a>
+                    <a href="setup_linux.sh" download class="download-btn">Linux Setup Script<br><small>Downloads everything automatically</small></a>
+                    <a href="setup_windows.sh" download class="download-btn">Windows Setup Script<br><small>Downloads everything automatically</small></a>
+                </div>
+
+                <h3>Command Line Setup</h3>
+                
+                <h4>Mac Setup (2 Commands)</h4>
+                <p><strong>Step 1:</strong> Download and run the setup script (from any folder)</p>
                 <div class="code-block">
-# Download/clone this repo, then:
+curl -O https://raw.githubusercontent.com/edydex/outlook_forensics/main/setup_mac.sh
+chmod +x setup_mac.sh && ./setup_mac.sh
+                </div>
+                
+                <p>• The script creates an <code>outlook_forensics</code> folder in your current directory<br>
+                • Downloads all required files into that folder<br>
+                • Sets up Python environment and dependencies</p>
+                
+                <p><strong>Step 2:</strong> Navigate to the new folder and run the application</p>
+                <div class="code-block">
 cd outlook_forensics
-chmod +x setup_mac.sh
-./setup_mac.sh
-
-# When it's done:
 source venv/bin/activate
-python forensics_app.py
+python3 forensics_app.py
                 </div>
 
-                <h3>Linux Setup</h3>
+                <h4>Linux Setup (2 Commands)</h4>
+                <p><strong>Step 1:</strong> Download and run the setup script (from any folder)</p>
                 <div class="code-block">
-cd AuditApp
-chmod +x setup_linux.sh
-./setup_linux.sh
-
+curl -O https://raw.githubusercontent.com/edydex/outlook_forensics/main/setup_linux.sh
+chmod +x setup_linux.sh && ./setup_linux.sh
+                </div>
+                
+                <p>• The script creates an <code>outlook_forensics</code> folder in your current directory<br>
+                • Downloads all required files into that folder<br>
+                • Sets up Python environment and dependencies</p>
+                
+                <p><strong>Step 2:</strong> Navigate to the new folder and run the application</p>
+                <div class="code-block">
+cd outlook_forensics
 source forensics_app_env/bin/activate
+python3 forensics_app.py
+                </div>
+
+                <h4>Windows Setup (More Complex)</h4>
+                <p><strong>Step 1:</strong> Open PowerShell (right-click in any folder → "Open PowerShell here")</p>
+                <div class="code-block">
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/edydex/outlook_forensics/main/setup_windows.sh" -OutFile "setup_windows.bat"
+.\setup_windows.bat
+                </div>
+                
+                <p>• The script creates an <code>outlook_forensics</code> folder in your current directory<br>
+                • Downloads all required files into that folder<br>
+                • Sets up Python environment and dependencies</p>
+                
+                <div class="warning-box">
+                    <h4>• Windows Limitation</h4>
+                    <p>Windows requires additional setup for PST extraction. Consider using WSL (Windows Subsystem for Linux) for best results.</p>
+                </div>
+                
+                <p><strong>Step 2:</strong> Navigate to the new folder and run the application</p>
+                <div class="code-block">
+cd outlook_forensics
+forensics_app_env\Scripts\activate.bat
 python forensics_app.py
                 </div>
 
